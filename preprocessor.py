@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+from tqdm.auto import tqdm
+import os
 
 '''
 1) Заполняет пропуски (на ваш выбор как, я это оценю)
@@ -62,7 +65,7 @@ class Preprocessor:
         self.df = pd.get_dummies(self.df, columns=self.cat_features, drop_first=True)
 
     #number 5
-    def dates(self, col='create_dttm'):
+    def dates(self, col='Date'):
         self.df[col] = pd.to_datetime(self.df[col], dayfirst=True)
 
         # new columns
@@ -71,6 +74,36 @@ class Preprocessor:
         self.df['Day'] = self.df[col].dt.day
 
         self.df.drop(columns=[col], inplace=True)
+
+
+    # seminar 4
+    # 1) Построить hist графики
+    # 2) Построить SNS графики и сохранить
+
+    def hist_graphics(self):
+        numeric_cols = self.df.select_dtypes([int, float]).columns
+        num_cols = len(numeric_cols)
+        fig, axes = plt.subplots(nrows=((num_cols//3) + (num_cols % 3)), ncols=3, figsize=(16, ((num_cols // 3 + 1) * 7)))
+        for ax, col in tqdm(zip(axes.flatten(), numeric_cols)):
+            ax.hist(self.df[col], bins=30, alpha=0.7)
+            ax.set_title(f'{col} distribution')
+            ax.set_xlabel(col)
+            ax.set_ylabel('Frequency')
+            ax.grid()
+
+        for i in range(num_cols, len(axes.flatten())):
+            fig.delaxes(axes.flatten()[i])
+
+        os.makedirs('hist_graph', exist_ok=True)
+        plt.tight_layout()
+        plt.savefig('hist_graph/images.png', dpi=300)
+        plt.close(fig)
+
+    def sns_graph(self):
+        os.makedirs('sns_graph', exist_ok=True)
+        sns.pairplot(self.df)
+        plt.savefig('sns_graph/images.png', dpi=300)
+        plt.close()
 
     def __str__(self):
         return f'{self.df.head(5)}'
