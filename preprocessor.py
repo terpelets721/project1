@@ -65,7 +65,7 @@ class Preprocessor:
         self.df = pd.get_dummies(self.df, columns=self.cat_features, drop_first=True)
 
     #number 5
-    def dates(self, col='Date'):
+    def dates(self, col='create_dttm'):
         self.df[col] = pd.to_datetime(self.df[col], dayfirst=True)
 
         # new columns
